@@ -212,8 +212,6 @@ var changedNum = 0;
 var changedTimer = null;
 var changedProcess = null;
 
-var whoFirst = "";
-
 /**
  * 文本计算md5，处理变更
  * @param str
@@ -291,7 +289,6 @@ function tryWriteHashFile() {
  * 打印检测到的未变更数量，有个进度友好点
  */
 function tryLogUnChangeNum() {
-    whoFirst = whoFirst || "unchange";
     //
     unChangeProcess = unChangeProcess || new appTools.ProgressMsg();
     unChangeNum++;
@@ -303,8 +300,10 @@ function tryLogUnChangeNum() {
 
     unChangeTimer = setTimeout(function () {
         //
-        unChangeProcess.logMsg('hj-hint：检查到未变更文件:' + unChangeNum + " 这些文件不执行hint检查" + whoFirst == "change" ? "\n\n" : "");
-    }, 500)
+        var isLast = !changedTimer;
+
+        unChangeProcess.logMsg('hj-hint：检查到未变更文件:' + unChangeNum + " 这些文件不执行hint检查");
+    }, 800);
 
     if (unChangeNum % 8 == 0) {
         unChangeProcess.logMsg('hj-hint：检查到未变更文件:' + unChangeNum + " 这些文件不执行hint检查")
@@ -316,7 +315,6 @@ function tryLogUnChangeNum() {
  * 打印检测到的变更数量，有个进度友好点
  */
 function tryLogChangedNum() {
-    whoFirst = whoFirst || "change";
     //
     changedProcess = changedProcess || new appTools.ProgressMsg();
     changedNum++;
@@ -328,8 +326,10 @@ function tryLogChangedNum() {
 
     changedTimer = setTimeout(function () {
         //
-        changedProcess.logMsg('hj-hint：执行hint文件: ' + changedNum + whoFirst == "unchange" ? "\n\n" : "");
-    }, 500)
+        var isLast = !unChangeTimer;
+
+        changedProcess.logMsg('hj-hint：执行hint文件: ' + changedNum);
+    }, 800);
 
     if (changedNum % 8 == 0) {
         changedProcess.logMsg('hj-hint：执行hint文件: ' + changedNum)
