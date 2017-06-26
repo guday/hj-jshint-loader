@@ -142,7 +142,7 @@ function jsHint(input, options) {
         md5HashMap[releavePath] = -1;
     } else {
         md5HashMap[releavePath] = md5Hash;
-        console.log("hj-hint:", releavePath)
+        // console.log("hj-hint:", releavePath)
     }
     tryWriteHashFile();
     //检查结果判断  --add by seraphwu@20170626     end
@@ -212,6 +212,7 @@ var changedNum = 0;
 var changedTimer = null;
 var changedProcess = null;
 
+var whoFirst = "";
 
 /**
  * 文本计算md5，处理变更
@@ -290,6 +291,7 @@ function tryWriteHashFile() {
  * 打印检测到的未变更数量，有个进度友好点
  */
 function tryLogUnChangeNum() {
+    whoFirst = whoFirst || "unchange";
     //
     unChangeProcess = unChangeProcess || new appTools.ProgressMsg();
     unChangeNum++;
@@ -299,13 +301,13 @@ function tryLogUnChangeNum() {
         unChangeTimer = null;
     }
 
-    unChangeTimer = setTimeout(function() {
+    unChangeTimer = setTimeout(function () {
         //
-        unChangeProcess.logMsg('hj-hint：检查到未变更文件:'+ unChangeNum+ " 这些文件不执行hint检查");
+        unChangeProcess.logMsg('hj-hint：检查到未变更文件:' + unChangeNum + " 这些文件不执行hint检查" + whoFirst == "change" ? "\n\n" : "");
     }, 500)
 
-    if (unChangeNum % 10 ==0) {
-        unChangeProcess.logMsg('hj-hint：检查到未变更文件:'+ unChangeNum+ " 这些文件不执行hint检查")
+    if (unChangeNum % 8 == 0) {
+        unChangeProcess.logMsg('hj-hint：检查到未变更文件:' + unChangeNum + " 这些文件不执行hint检查")
     }
 
 }
@@ -314,6 +316,7 @@ function tryLogUnChangeNum() {
  * 打印检测到的变更数量，有个进度友好点
  */
 function tryLogChangedNum() {
+    whoFirst = whoFirst || "change";
     //
     changedProcess = changedProcess || new appTools.ProgressMsg();
     changedNum++;
@@ -323,13 +326,13 @@ function tryLogChangedNum() {
         changedTimer = null;
     }
 
-    changedTimer = setTimeout(function() {
+    changedTimer = setTimeout(function () {
         //
-        changedProcess.logMsg('hj-hint：执行hint文件: '+ changedNum);
+        changedProcess.logMsg('hj-hint：执行hint文件: ' + changedNum + whoFirst == "unchange" ? "\n\n" : "");
     }, 500)
 
-    if (changedNum % 10 ==0) {
-        changedProcess.logMsg('hj-hint：执行hint文件: '+ changedNum)
+    if (changedNum % 8 == 0) {
+        changedProcess.logMsg('hj-hint：执行hint文件: ' + changedNum)
     }
 
 }
