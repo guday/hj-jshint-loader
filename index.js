@@ -302,11 +302,11 @@ function tryLogUnChangeNum() {
         //
         var isLast = !changedTimer;
 
-        unChangeProcess.logMsg('hj-hint：检查到未变更文件:' + unChangeNum + " 这些文件不执行hint检查");
+        unChangeProcess.logMsg('hj-hint：检查到未变更文件:' + unChangeNum + " 这些文件不执行hint检查" + "         ");
     }, 800);
 
     if (unChangeNum % 8 == 0) {
-        unChangeProcess.logMsg('hj-hint：检查到未变更文件:' + unChangeNum + " 这些文件不执行hint检查")
+        unChangeProcess.logMsg('hj-hint：检查到未变更文件:' + unChangeNum + " 这些文件不执行hint检查" + "         ")
     }
 
 }
@@ -328,11 +328,11 @@ function tryLogChangedNum() {
         //
         var isLast = !unChangeTimer;
 
-        changedProcess.logMsg('hj-hint：执行hint文件: ' + changedNum);
+        changedProcess.logMsg('hj-hint：执行hint文件: ' + changedNum + "         ");
     }, 800);
 
     if (changedNum % 8 == 0) {
-        changedProcess.logMsg('hj-hint：执行hint文件: ' + changedNum)
+        changedProcess.logMsg('hj-hint：执行hint文件: ' + changedNum + "         ")
     }
 
 }

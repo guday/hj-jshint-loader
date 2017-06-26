@@ -1,6 +1,6 @@
 {
   "name": "hj-jshint-loader",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "应项目需求，优化jshint-loader，增加扫描结果缓存，提高检查效率",
   "main": "index.js",
   "scripts": {
