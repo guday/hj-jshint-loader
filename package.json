@@ -1,6 +1,6 @@
 {
   "name": "hj-jshint-loader",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "应项目需求，优化jshint-loader，增加扫描结果缓存，提高检查效率",
   "main": "index.js",
   "scripts": {
@@ -16,6 +16,9 @@
     "url": "https://github.com/guday/hj-jshint-loader/issues"
   },
   "homepage": "https://github.com/guday/hj-jshint-loader",
+  "dependencies": {
+    "loader-utils": "^1.0.2"
+  },
   "devDependencies": {
     "jshint-loader": "^0.8.4"
   }

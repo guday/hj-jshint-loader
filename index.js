@@ -11,6 +11,13 @@ var stripJsonComments = require("strip-json-comments");
 var loaderUtils = require("loader-utils");
 var fs = require("fs");
 
+// 导入引用  add by seraphwu@20170626  begin
+
+var path = require("path");
+var crypto = require("crypto");
+var appTools = require("hj-app-tools");
+
+// 导入引用  add by seraphwu@20170626  end
 
 // setup RcLoader
 var rcLoader = new RcLoader(".jshintrc", null, {
@@ -105,8 +112,40 @@ function jsHint(input, options) {
     globals.process = true;
     globals.define = true;
 
+    //初始化map --add by seraphwu@20170626      begin
+    initMd5HashMap({
+        options,
+        globals,
+        // emitErrors,
+        // failOnHint,
+        // reporter,
+    });
+
+    var releavePath = path.relative(this.options.context, this.resourcePath);
+    var md5Hash = md5(input);
+    if (md5HashMap[releavePath] == md5Hash) {
+        //无变化，不检查
+        // console.log("no change", releavePath)
+        tryLogUnChangeNum();
+        return;
+    }
+    //初始化map --add by seraphwu@20170626      end
+
     var source = input.split(/\r\n?|\n/g);
     var result = jshint(source, options, globals);
+
+    //检查结果判断  --add by seraphwu@20170626     begin
+    if(!result) {
+        // console.log(releavePath, result)
+        // 检查结果异常。
+        md5HashMap[releavePath] = -1;
+    } else {
+        md5HashMap[releavePath] = md5Hash;
+        console.log("hj-hint:", releavePath)
+    }
+    tryWriteHashFile();
+    //检查结果判断  --add by seraphwu@20170626     end
+
     var errors = jshint.errors;
     if(!result) {
         if(reporter) {
@@ -155,3 +194,112 @@ module.exports = function(input, map) {
 
     }.bind(this));
 };
+
+
+// add by seraphwu@20170626 begin
+var md5HashMap = {};
+var isInitMd5HashMap = false;
+var md5HashFilePath = './.hjCheckResultTmp/hjHintResult.json';
+var md5HashFileTimer = null;
+
+var queryConfig = {};
+var unChangeNum = 0;
+var unChangeTimer = null;
+
+
+/**
+ * 文本计算md5，处理变更
+ * @param str
+ * @returns {string|Buffer}
+ */
+function md5(str) {
+    return crypto.createHash('md5').update(str).digest("hex")
+}
+
+/**
+ * 初始化 filePath- md5 map
+ */
+function initMd5HashMap(param) {
+    if (isInitMd5HashMap) {
+        return;
+    }
+    isInitMd5HashMap = true;
+    var options = param.options || {};
+    var globals = param.globals || {};
+
+    queryConfig = {options, globals};
+    //
+    var isExist = fs.existsSync(md5HashFilePath);
+    if (isExist) {
+        //读取
+        var jsonStr = fs.readFileSync(md5HashFilePath, 'utf8');
+        try {
+            //文件的json结构
+            var jsonObj = JSON.parse(jsonStr) || {};
+
+            //检查结果
+            var fileResult = jsonObj.result || {};
+            md5HashMap = JSON.parse(JSON.stringify(fileResult));
+            // console.log("md5HashMap", md5HashMap)
+
+            //queryConfig
+            var config = jsonObj.config || {};
+
+            //对比上次的配置与本次的配置， 如果配置不一致，则全部重新检查
+            if (JSON.stringify(config) != JSON.stringify(queryConfig)) {
+                // console.log("config", config)
+                // console.log("queryConfig", queryConfig)
+                md5HashMap = {};
+            }
+        }
+        catch (e) {
+            md5HashMap = {};
+        }
+    } else {
+        //初始化
+        md5HashMap = {};
+    }
+    // console.log(md5HashMap)
+}
+
+/**
+ * 将map写文件，长久保存
+ */
+function tryWriteHashFile() {
+    // console.log("try",md5HashMap)
+    if (md5HashFileTimer) {
+        clearTimeout(md5HashFileTimer);
+        md5HashFileTimer = null;
+    }
+
+    md5HashFileTimer = setTimeout(function () {
+        var result = md5HashMap;
+        var config = queryConfig;
+        appTools.writeToFile(md5HashFilePath, JSON.stringify({result, config}))
+        //
+    }, 800)
+}
+
+/**
+ * 打印检测到的未变更数量，有个进度友好点
+ */
+function tryLogUnChangeNum() {
+    //
+    unChangeNum++;
+
+    if (unChangeTimer) {
+        clearTimeout(unChangeTimer);
+        unChangeTimer = null;
+    }
+
+    unChangeTimer = setTimeout(function() {
+        //
+        console.log('hj-hint检查到未变更文件数量:', unChangeNum, "这些文件不执行hint检查");
+    }, 800)
+
+    if (unChangeNum % 50 ==0) {
+        console.log('hj-hint检查到未变更文件数量:', unChangeNum, "这些文件不执行hint检查");
+    }
+
+}
+// add by seraphwu@20170626 end
