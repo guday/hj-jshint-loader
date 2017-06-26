@@ -129,6 +129,7 @@ function jsHint(input, options) {
         tryLogUnChangeNum();
         return;
     }
+    tryLogChangedNum();
     //初始化map --add by seraphwu@20170626      end
 
     var source = input.split(/\r\n?|\n/g);
@@ -205,6 +206,11 @@ var md5HashFileTimer = null;
 var queryConfig = {};
 var unChangeNum = 0;
 var unChangeTimer = null;
+var unChangeProcess = null;
+
+var changedNum = 0;
+var changedTimer = null;
+var changedProcess = null;
 
 
 /**
@@ -285,6 +291,7 @@ function tryWriteHashFile() {
  */
 function tryLogUnChangeNum() {
     //
+    unChangeProcess = unChangeProcess || new appTools.ProgressMsg();
     unChangeNum++;
 
     if (unChangeTimer) {
@@ -294,12 +301,37 @@ function tryLogUnChangeNum() {
 
     unChangeTimer = setTimeout(function() {
         //
-        console.log('hj-hint检查到未变更文件数量:', unChangeNum, "这些文件不执行hint检查");
-    }, 800)
+        unChangeProcess.logMsg('hj-hint：检查到未变更文件:'+ unChangeNum+ " 这些文件不执行hint检查");
+    }, 500)
 
-    if (unChangeNum % 50 ==0) {
-        console.log('hj-hint检查到未变更文件数量:', unChangeNum, "这些文件不执行hint检查");
+    if (unChangeNum % 10 ==0) {
+        unChangeProcess.logMsg('hj-hint：检查到未变更文件:'+ unChangeNum+ " 这些文件不执行hint检查")
     }
 
 }
+
+/**
+ * 打印检测到的变更数量，有个进度友好点
+ */
+function tryLogChangedNum() {
+    //
+    changedProcess = changedProcess || new appTools.ProgressMsg();
+    changedNum++;
+
+    if (changedTimer) {
+        clearTimeout(changedTimer);
+        changedTimer = null;
+    }
+
+    changedTimer = setTimeout(function() {
+        //
+        changedProcess.logMsg('hj-hint：执行hint文件: '+ changedNum);
+    }, 500)
+
+    if (changedNum % 10 ==0) {
+        changedProcess.logMsg('hj-hint：执行hint文件: '+ changedNum)
+    }
+
+}
+
 // add by seraphwu@20170626 end
