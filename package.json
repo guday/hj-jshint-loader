@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/guday/hj-jshint-loader",
   "dependencies": {
-    "hj-app-tools": "1.0.4",
+    "hj-app-tools": "1.0.5",
     "loader-utils": "^1.0.2"
   },
   "devDependencies": {
